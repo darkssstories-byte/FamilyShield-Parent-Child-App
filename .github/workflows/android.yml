@@ -1,0 +1,26 @@
+name: Android APK Build
+
+on:
+workflow_dispatch:
+
+permissions:
+contents: read
+
+jobs:
+check:
+name: Check Android project
+runs-on: ubuntu-latest
+
+steps:
+  - name: Checkout repository
+    uses: actions/checkout@v4
+
+  - name: Check project files
+    run: |
+      if [ ! -f settings.gradle ] && [ ! -f settings.gradle.kts ]; then
+        echo "Android project not added yet."
+        echo "Upload the Android source project before building APKs."
+        exit 1
+      fi
+
+      echo "Android project files detected."
