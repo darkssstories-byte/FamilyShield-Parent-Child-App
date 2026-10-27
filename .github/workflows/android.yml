@@ -1,26 +1,40 @@
 name: Android APK Build
 
 on:
-workflow_dispatch:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 permissions:
-contents: read
+  contents: read
 
 jobs:
-check:
-name: Check Android project
-runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-latest
 
-steps:
-  - name: Checkout repository
-    uses: actions/checkout@v4
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
 
-  - name: Check project files
-    run: |
-      if [ ! -f settings.gradle ] && [ ! -f settings.gradle.kts ]; then
-        echo "Android project not added yet."
-        echo "Upload the Android source project before building APKs."
-        exit 1
-      fi
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
 
-      echo "Android project files detected."
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: Build debug APK
+        run: gradle assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: family-shield-apk
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          
